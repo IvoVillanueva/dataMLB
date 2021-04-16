@@ -12,7 +12,7 @@ mutate(equipourl = str_extract(equipos, "[^/]+$"), #esto saca la última parte d
        equipoabr = str_split(equipos, "/", simplify = TRUE)[ , 7]) #esto saca lo que hay en el hueco numero siete entre barras
 
 #datapasta::vector_paste_vertical(url_equipos$equipourl)
-#-------------------------------------------------------el código de arriba nos escribe con las comillas y las comas como un dataframe solo le tenemos que dar el nombre "teams" en este caso
+#-------------------------------------------------------el código de arriba nos escribe con las comillas y las comas un dataframe solo le tenemos que dar el nombre "teams" en este caso
 teams <- c("chicago-white-sox",
             "cleveland-indians",
             "detroit-tigers",
