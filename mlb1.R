@@ -95,6 +95,7 @@ cabezas_foto_scrape <- function(shortsnames, teams) {
 foto_scrape_final <- cabezas  %>%
   mutate(data = map2(shortsnames, teams, ~ cabezas_foto_scrape(.x,.y))) #la funcion "map2" es para mapear dos variables como en este caso, si no seria "map"
 
+# ## limpiamos y desanidamos los datos en una tabla -----------------------
 
 foto_scrape_df <- foto_scrape_final %>% unnest() %>%
   set_names(c("shortsnames", "teams" , "espn_foto")) %>%
