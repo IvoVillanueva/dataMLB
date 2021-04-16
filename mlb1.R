@@ -85,7 +85,7 @@ cabezas <- tibble(shortsnames, teams) %>%
 # Function para scrape las fotos de los jugadores  ----
 
 cabezas_foto_scrape <- function(shortsnames, teams) {
-  Sys.sleep(3)
+  Sys.sleep(3) #Suspende la ejecución  durante el intervalo que indiquemos
   url <- glue::glue("https://espndeportes.espn.com/beisbol/mlb/equipo/plantel/_/nombre/{shortsnames}/{teams}")
   read_html(url) %>%
     html_nodes(".headshot img") %>%
