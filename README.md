@@ -1,2 +1,2 @@
 # DataMLB
-## *Scrape codige and csv of Player Photos and Logos for MLB* 
+## *Scrape code and csv of Player Photos and Logos for MLB* 
