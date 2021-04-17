@@ -12,7 +12,7 @@ mutate(equipourl = str_extract(equipos, "[^/]+$"), #esto saca la última parte d
        equipoabr = str_split(equipos, "/", simplify = TRUE)[ , 7]) #esto saca lo que hay en el hueco numero siete entre barras
 
 #datapasta::vector_paste_vertical(url_equipos$equipourl)
-#-------------------------------------------------------el código de arriba nos escribe con las comillas y las comas un dataframe solo le tenemos que dar el nombre "teams" en este caso
+#-------------------------------------------------------el código de arriba nos escribe con las comillas y las comas como un dataframe solo le tenemos que dar el nombre "teams" en este caso
 teams <- c("chicago-white-sox",
             "cleveland-indians",
             "detroit-tigers",
@@ -85,7 +85,7 @@ cabezas <- tibble(shortsnames, teams) %>%
 # Function para scrape las fotos de los jugadores  ----
 
 cabezas_foto_scrape <- function(shortsnames, teams) {
-  Sys.sleep(3) #Suspende la ejecución  durante el intervalo que indiquemos
+  Sys.sleep(3)
   url <- glue::glue("https://espndeportes.espn.com/beisbol/mlb/equipo/plantel/_/nombre/{shortsnames}/{teams}")
   read_html(url) %>%
     html_nodes(".headshot img") %>%
@@ -95,7 +95,6 @@ cabezas_foto_scrape <- function(shortsnames, teams) {
 foto_scrape_final <- cabezas  %>%
   mutate(data = map2(shortsnames, teams, ~ cabezas_foto_scrape(.x,.y))) #la funcion "map2" es para mapear dos variables como en este caso, si no seria "map"
 
-# ## limpiamos y desanidamos los datos en una tabla -----------------------
 
 foto_scrape_df <- foto_scrape_final %>% unnest() %>%
   set_names(c("shortsnames", "teams" , "espn_foto")) %>%
@@ -226,7 +225,77 @@ dataMLB <- mlb_csv1 %>% left_join(mlb_teams, by =c("TeamAbr"= "team_abr")) %>%
 write.csv(dataMLB, "dataMLB.csv", row.names = FALSE)
 dataMLB <- read.csv("dataMLB.csv")
 
+#Añadimos las columnas de sportsreference con el nombre abreviado y la liga
+
+#scrapeo de la tabla de standings
+
+reference <- read_html ("https://www.baseball-reference.com/leagues/MLB-standings.shtml") %>% 
+  html_nodes(xpath = '//comment()') %>%
+  html_text() %>%
+  paste(collapse='') %>%
+  read_html() %>% 
+  html_node("#expanded_standings_overall") %>% 
+  html_table() %>% janitor::clean_names() %>% 
+  hablar::retype() #esta es mas laboriosa porque esta tabla la tienen etiquetada como comentario
+
+
+#creamos una tabla con las columnas que queremos y limpiamos
+
+ref_tabla <- tibble(reference$tm, reference$lg) %>% 
+  janitor::clean_names() %>% 
+  group_by(reference_lg) %>% 
+  arrange(reference_lg) %>% 
+  filter(reference_tm != "Avg")
+
+#creamos la columna para el leftjoin
+
+ref_tabla2 <- ref_tabla %>% mutate(
+  mlb_names = case_when(
+    reference_tm == "BOS" ~ "Boston Red Sox",
+    reference_tm == "SEA" ~ "Seattle Mariners",
+    reference_tm == "KCR" ~ "Kansas City Royals",
+    reference_tm == "LAA" ~ "Los Angeles Angels",
+    reference_tm == "CLE" ~ "Cleveland Indians",
+    reference_tm == "OAK" ~ "Oakland Athletics",
+    reference_tm == "TOR" ~ "Toronto Blue Jays",
+    reference_tm == "CHW" ~ "Chicago White Sox",
+    reference_tm == "HOU" ~ "Houston Astros",
+    reference_tm == "BAL" ~ "Baltimore Orioles",
+    reference_tm == "TBR" ~ "Tampa Bay Rays",
+    reference_tm == "DET" ~ "Detroit Tigers",
+    reference_tm == "MIN" ~ "Minnesota Twins",
+    reference_tm == "TEX" ~ "Texas Rangers",
+    reference_tm == "NYY" ~ "New York Yankees",
+    reference_tm == "LAD" ~ "Los Angeles Dodgers",
+    reference_tm == "CIN" ~ "Cincinnati Reds",
+    reference_tm == "SFG" ~ "San Francisco Giants",
+    reference_tm == "SDP" ~ "San Diego Padres",
+    reference_tm == "NYM" ~ "New York Mets",
+    reference_tm == "MIL" ~ "Milwaukee Brewers",
+    reference_tm == "PHI" ~ "Philadelphia Phillies",
+    reference_tm == "MIA" ~ "Miami Marlins",
+    reference_tm == "STL" ~ "St. Louis Cardinals",
+    reference_tm == "ATL" ~ "Atlanta Braves",
+    reference_tm == "PIT" ~ "Pittsburgh Pirates",
+    reference_tm == "CHC" ~ "Chicago Cubs",
+    reference_tm == "WSN" ~ "Washington Nationals",
+    reference_tm == "ARI" ~ "Arizona Diamondbacks",
+    reference_tm == "COL" ~ "Colorado Rockies",
+    TRUE ~ reference_tm 
+  )
+) %>% set_names(c("refe_abr_team", "league", "mlb_names"))
+
+#unimos las tablas
+
+dataMLB <- dataMLB %>% left_join(ref_tabla2, by = c("mlb_team_name" = "mlb_names"))
+
+#volvemos a guardar
+
+write.csv(dataMLB, "dataMLB.csv", row.names = FALSE)
+dataMLB <- read.csv("dataMLB.csv")
+
 
 # chequeo sanitario ------------------------------------------------------------
 
 MLB <- read.csv("https://raw.githubusercontent.com/IvoVillanueva/dataMLB/main/dataMLB.csv")
+
