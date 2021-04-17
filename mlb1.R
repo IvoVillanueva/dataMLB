@@ -236,7 +236,8 @@ reference <- read_html ("https://www.baseball-reference.com/leagues/MLB-standing
   read_html() %>% 
   html_node("#expanded_standings_overall") %>% 
   html_table() %>% janitor::clean_names() %>% 
-  hablar::retype() #esta es mas laboriosa porque esta tabla la tienen etiquetada como comentario
+  hablar::retype() #nos transforma la clase de las columnas
+       #esta es mas laboriosa porque esta tabla la tienen etiquetada como comentario
 
 
 #creamos una tabla con las columnas que queremos y limpiamos
