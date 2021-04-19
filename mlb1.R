@@ -216,7 +216,7 @@ dataMLB <- mlb_csv1 %>% left_join(mlb_teams, by =c("TeamAbr"= "team_abr")) %>%
                                     mlb_logos,
                                     id_team,
                                     url_name_teams) %>% mutate( mlb_logos =
-                                                                  str_remove(mlb_logos, "//")) #al principio de las url de los equipos, nos sale esas dos barras asi que las quitamos
+                                                                  paste0("https:", mlb_logos)) #al principio de las url de los equipos, nos sale esas dos barras asi que las quitamos
 
 # Guardamos en csv --------------------------------------------------------
 
@@ -227,7 +227,7 @@ dataMLB <- read.csv("dataMLB.csv")
 
 #Añadimos las columnas de sportsreference con el nombre abreviado y la liga
 
-#scrapeo de la tabla de standings
+#scrapeo de la tabla de standings. Y si, me estoy flipando que para dos columnas que puedo escribir a mano haga esto :)
 
 reference <- read_html ("https://www.baseball-reference.com/leagues/MLB-standings.shtml") %>% 
   html_nodes(xpath = '//comment()') %>%
@@ -236,8 +236,7 @@ reference <- read_html ("https://www.baseball-reference.com/leagues/MLB-standing
   read_html() %>% 
   html_node("#expanded_standings_overall") %>% 
   html_table() %>% janitor::clean_names() %>% 
-  hablar::retype() #nos transforma la clase de las columnas
-       #esta es mas laboriosa porque esta tabla la tienen etiquetada como comentario
+  hablar::retype() #esta es mas laboriosa porque esta tabla la tienen etiquetada como comentario
 
 
 #creamos una tabla con las columnas que queremos y limpiamos
@@ -248,7 +247,8 @@ ref_tabla <- tibble(reference$tm, reference$lg) %>%
   arrange(reference_lg) %>% 
   filter(reference_tm != "Avg")
 
-#creamos la columna para el leftjoin
+#creamos la columna para el leftjoin  
+
 
 ref_tabla2 <- ref_tabla %>% mutate(
   mlb_names = case_when(
