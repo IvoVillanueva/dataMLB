@@ -297,52 +297,38 @@ dataMLB <- read.csv("dataMLB.csv")
 
 #agregamos los colores de los equipos
 
-colors_a <- read_html("https://teamcolorcodes.com/mlb-color-codes/") %>% 
-  html_nodes("p:nth-of-type(1) a.team-button") %>% 
-  html_text("style") %>% 
-  tibble()%>% set_names(c("equipos"))
+dataMLB <- dataMLB %>% select(-primary,-secondary, -tertiary, -quaternary)
 
+coloresMLB<- read.csv("coloresMLB.csv")
 
-colors_b <- read_html("https://teamcolorcodes.com/mlb-color-codes/") %>% 
-  html_nodes("p:nth-of-type(1) a.team-button") %>% 
-  html_attr("style") %>% 
-  tibble() %>% set_names(c("url"))
-
-
-
-colors_c <- tibble(colors_a, colors_b)
-
-colors_c <- colors_c %>% mutate(url1 = str_split(url, ":", simplify = TRUE)[, 2],
-                                url1 = str_remove(url1,"; color"),
-                                url1 = str_squish(url1),
-                                url2 = str_split(url, ":", simplify = TRUE)[, 4],
-                                url2 = str_remove(url2," 4px solid "),
-                                url2 = str_remove(url2,";"),
-                                url2 = str_remove(url2,"text-shadow"),
-                                url2 = str_squish(url2),
-                                url2 = case_when(
-                                  url2 == "#000" ~ "#000000",
-                                  TRUE ~ url2))
-
-colors <- colors_c %>% 
-  select(equipos,
-         bacground_color = url1,
-         border_color = url2)
-
+dataMLB <- dataMLB %>% left_join(coloresMLB, by = c("mlb_team_name"= "team")) %>% 
+dataMLB <- dataMLB %>%   select(-mlb_logos)
 
 # Guardamos los colores en csv
-
-write.csv(colors , "colorsMLB.csv", row.names = FALSE)
-colors <- read.csv("colorsMLB.csv")
-
-# Unimos a dataMLB los colores
-
-dataMLB <- dataMLB %>% left_join(colors, by = c("mlb_team_name" = "equipos"))
-#volvemos a guardar
 
 write.csv(dataMLB, "dataMLB.csv", row.names = FALSE)
 dataMLB <- read.csv("dataMLB.csv")
 
+
+# Creamos solo tabla de logos
+
+MLBlogos <- dataMLB %>% select(mlb_team_name,
+                               mlb_logos,
+                               id_team,
+                               url_name_teams,
+                               team,
+                               liga,
+                               league,
+                               division,
+                               location,
+                               sportslogos_name,
+                               primary,
+                               secondary,
+                               tertiary,
+                               quaternary)
+
+write.csv(MLBlogos, "MLBlogos.csv", row.names = FALSE)
+MLBlogos <- read.csv("MLBlogos.csv")
 
 # chequeo sanitario ------------------------------------------------------------
 
