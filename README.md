@@ -12,3 +12,5 @@
 * test_dataMLB.R test con la union de dataMLB con un clasificación de mlb-reference
 
 <img src="https://github.com/IvoVillanueva/dataMLB/blob/main/netratingmlb.png" />
+-----
+<img src="https://github.com/IvoVillanueva/dataMLB/blob/main/wardf_heads.png" />
