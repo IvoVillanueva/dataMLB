@@ -11,4 +11,4 @@
 * mbl1.R código R de las tablas
 * test_dataMLB.R test con la union de dataMLB con un clasificación de mlb-reference
 
-<img src="https://www.mlbstatic.com/team-logos/league-on-dark/1.svg" />
+<img src="https://github.com/IvoVillanueva/dataMLB/blob/main/netratingmlb.png" />
